@@ -7,6 +7,7 @@
 #include <OpenMesh/Core/IO/MeshIO.hh>
 #include <OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>
 #include <unistd.h>
+#include "matrix.h"
 
 namespace Ui {
 class MainWindow;
@@ -75,6 +76,8 @@ private slots:
     void on_clearGrid_clicked();
 
     void on_demo_start_stop_clicked();
+
+    void on_pushButton_clear_clicked();
 
 private:
 

@@ -93,7 +93,7 @@ void MainWindow::drawSegment(MyMesh *_mesh,int x1, int y1, int x2, int y2)
         //}
         if(demos)
         {
-            sleep(1);
+            sleep(0.7);
             displayMesh(_mesh);
         }
 
@@ -570,10 +570,12 @@ void MainWindow::on_vertex2_y_moins_clicked()
 void MainWindow::on_clearGrid_clicked()
 {
     //to do
+    mesh.clear();
 }
 
 void MainWindow::on_demo_start_stop_clicked()
 {
+
     if(demos == false)
     {
         demos = true;
@@ -587,4 +589,29 @@ void MainWindow::on_demo_start_stop_clicked()
         ui->demo_start_stop->setStyleSheet("background-color: red;");
     }
     on_pushButton_generer_clicked();
+}
+
+
+void MainWindow::on_pushButton_clear_clicked()
+{
+    QVector<float> arg1;
+    for (int i = 0;i<16;i++)
+    {
+        arg1.push_back(rand()%9);
+    }
+    QVector<float> arg2;
+    for (int i = 0;i<16;i++)
+    {
+        arg2.push_back(rand()%9);
+    }
+    matrix m1(4,3,arg1);
+    matrix m2(1,4,arg2);
+    m1.afficher();
+    m2.afficher();
+    qDebug()<<m1.at(3,3);
+    qDebug()<<m2.at(0,0);
+    qDebug()<<m1.at(4,3);
+    m1.multMat(m2).afficher();
+
+    mesh.clear();
 }

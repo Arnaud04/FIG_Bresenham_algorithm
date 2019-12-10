@@ -75,7 +75,7 @@
        <item>
         <widget class="QPushButton" name="delateGridVertex">
          <property name="text">
-          <string>delate vertex</string>
+          <string>delete vertex</string>
          </property>
         </widget>
        </item>
@@ -185,6 +185,13 @@
           </widget>
          </item>
         </layout>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton_clear">
+         <property name="text">
+          <string>clear</string>
+         </property>
+        </widget>
        </item>
        <item>
         <spacer name="verticalSpacer">
