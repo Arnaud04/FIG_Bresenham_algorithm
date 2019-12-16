@@ -614,4 +614,6 @@ void MainWindow::on_pushButton_clear_clicked()
     m1.multMat(m2).afficher();
 
     mesh.clear();
+
+
 }

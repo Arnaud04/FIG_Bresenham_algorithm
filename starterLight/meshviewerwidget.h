@@ -70,11 +70,14 @@ public:
     OpenMesh::Vec3f  center_;
     float            radius_;
 
-    GLdouble    projection_matrix_[16], modelview_matrix_[16];
+    GLdouble    projection_matrix_[16];
+    GLdouble modelview_matrix_[16];
 
     QPoint           last_point_2D_;
     OpenMesh::Vec3f  last_point_3D_;
     bool             last_point_ok_;
+
+
 protected:
 
     // Qt mouse events

@@ -42,12 +42,14 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     matrix.cpp \
-    meshviewerwidget.cpp
+    meshviewerwidget.cpp \
+    quaternion.cpp
 
 HEADERS += \
         mainwindow.h \
     matrix.h \
-    meshviewerwidget.h
+    meshviewerwidget.h \
+    quaternion.h
 
 FORMS += \
         mainwindow.ui
