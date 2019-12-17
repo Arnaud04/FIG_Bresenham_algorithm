@@ -5,28 +5,9 @@
 
 /* **** autres fonction **** */
 
-// exemple pour charger un fichier .obj
-void MainWindow::on_pushButton_chargement_clicked()
-{
-    // fenêtre de sélection des fichiers
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Mesh"), "", tr("Mesh Files (*.obj)"));
-
-    // chargement du fichier .obj dans la variable globale "mesh"
-    OpenMesh::IO::read_mesh(mesh, fileName.toUtf8().constData());
-
-    mesh.update_normals();
-
-    // initialisation des couleurs et épaisseurs (sommets et arêtes) du mesh
-    resetAllColorsAndThickness(&mesh);
-
-    // on affiche le maillage
-    displayMesh(&mesh);
-}
-
 void MainWindow::draw_first_vertex(MyMesh *_mesh)
 {
     int indiceP1 = vertex2_y * nbGridPoints + vertex2_x;
-    //int indiceP2 = point_x2 * vertexNumber + point_y2 -1;
 
     //resetAllColorsAndThickness(_mesh);
     if(indiceP1 >= 0)
@@ -38,7 +19,6 @@ void MainWindow::draw_first_vertex(MyMesh *_mesh)
 
     }
     //displayMesh(_mesh);
-
 }
 
 void MainWindow::draw_last_vertex(MyMesh *_mesh)
@@ -68,7 +48,9 @@ void MainWindow::printListPoint(MyMesh *_mesh)
     }
 }
 
-void MainWindow::drawSegment(MyMesh *_mesh,int x1, int y1, int x2, int y2)
+//first bresheman algorithm version dont match all cases
+/*
+void MainWindow::drawSegment(MyMesh *_mesh,int x1, int y1, int x2, int y2, int reverseX, int reverseY)
 {
     int x,y,dx,dy;
     double e,e_1_0,e_0_1; //valeur d'erreur et increment
@@ -83,14 +65,16 @@ void MainWindow::drawSegment(MyMesh *_mesh,int x1, int y1, int x2, int y2)
     for(int x = x1; x <= x2; x++)
     {
         qDebug()<<"x :"<<x<<"y :"<<y;
+
+
+        qDebug()<<"x="<<x;
+
         int indiceP = y * nbGridPoints + x;
 
-        //if((x!=vertex1_x && y!=vertex1_y)||(x!=vertex2_x && y!=vertex2_y))
-        //{
-            VertexHandle v = _mesh->vertex_handle(indiceP);
-            _mesh->set_color(v, MyMesh::Color(0, 120, 0));
-            _mesh->data(v).thickness = 10;
-        //}
+        VertexHandle v = _mesh->vertex_handle(indiceP);
+        _mesh->set_color(v, MyMesh::Color(0, 120, 0));
+        _mesh->data(v).thickness = 10;
+
         if(demos)
         {
             sleep(0.7);
@@ -102,15 +86,55 @@ void MainWindow::drawSegment(MyMesh *_mesh,int x1, int y1, int x2, int y2)
             y = y+1;
             e = e + e_0_1;
         }
+    }
+}*/
 
+//second bresheman version
+void MainWindow::drawSegment(MyMesh *_mesh,int x1, int y1, int x2, int y2, int reverseX, int reverseY)
+{
+    int dx = abs(x2-x1);
+    int sx = x1<x2 ? 1 : -1;
+
+    int dy = -abs(y2-y1);
+    int sy = y1<y2 ? 1 : -1;
+
+    int err = dx+dy; /* error value e_xy */
+    while(true) /* loop */
+    {
+        if(x1 == x2 && y1 == y2)
+            break;
+        int e2 = 2*err;
+        if(e2 >= dy)
+        {
+            err += dy; /*e_xy+e_x >0*/
+            x1 += sx;
+        }
+        if(e2 <= dx) /*e_xy+e_y <0*/
+        {
+            err += dx;
+            y1 += sy;
+        }
+
+        if(demos)
+        {
+            sleep(1);
+            displayMesh(_mesh);
+        }
+
+        int indiceP = y1 * nbGridPoints + x1;
+
+        VertexHandle v = _mesh->vertex_handle(indiceP);
+        _mesh->set_color(v, MyMesh::Color(0, 120, 0));
+        _mesh->data(v).thickness = 10;
+        qDebug()<<"x1 "<<x1<<"y1"<<y1;
     }
 
 }
-
 /* **** fin de la partie boutons et IHM **** */
 
 
 /* **** fonctions supplémentaires **** */
+
 // permet d'initialiser les couleurs et les épaisseurs des élements du maillage
 void MainWindow::resetAllColorsAndThickness(MyMesh* _mesh)
 {
@@ -353,15 +377,12 @@ void MainWindow::on_pushButton_generer_clicked()
     resetAllColorsAndThickness(&mesh);
     printListPoint(&mesh);
 
-
     draw_first_vertex(&mesh);
     //displayMesh(&mesh);
 
     draw_last_vertex(&mesh);
 
-    //faire boucle
-
-    drawSegment(&mesh,vertex1_x, vertex1_y, vertex2_x, vertex2_y);
+    drawSegment(&mesh,vertex1_x, vertex1_y, vertex2_x, vertex2_y,1,1);
 
     displayMesh(&mesh);
 
@@ -385,22 +406,9 @@ void MainWindow::on_delateGridVertex_clicked()
 //======= x ========
 void MainWindow::on_vertex1_x_plus_clicked()
 {
-    if(vertex1_x < nbGridPoints-1)
+    if(vertex1_x < nbGridPoints-1 )
     {
-        if(!blocked &&(vertex2_x - vertex1_x) > (vertex2_y -vertex1_y))
-        {
-            vertex1_x ++;
-        }
-        /*if((vertex2_x - vertex1_x) <= (vertex2_y - vertex1_y))
-        {
-            blocked = true;
-        }
-
-        if(blocked && ((vertex2_x - vertex1_x+1) > (vertex2_y -vertex1_y)))
-        {
-            blocked = false;
-            vertex1_x ++;
-        }*/
+       vertex1_x ++;
     }
     on_pushButton_generer_clicked();
 }
@@ -409,20 +417,7 @@ void MainWindow::on_vertex1_x_moins_clicked()
 {
     if(vertex1_x > 0 )
     {
-        if(!blocked &&(vertex2_x - vertex1_x) > (vertex2_y -vertex1_y))
-        {
-            vertex1_x --;
-        }
-        /*if((vertex2_x - vertex1_x) <= (vertex2_y -vertex1_y))
-        {
-            blocked = true;
-        }
-
-        if(blocked && ((vertex2_x - vertex1_x-1) > (vertex2_y -vertex1_y)))
-        {
-            blocked = false;
-            vertex1_x --;
-        }*/
+       vertex1_x --;
     }
     on_pushButton_generer_clicked();
 }
@@ -430,22 +425,9 @@ void MainWindow::on_vertex1_x_moins_clicked()
 
 void MainWindow::on_vertex1_y_plus_clicked()
 {
-    if(vertex1_y < vertex2_y-1)
+    if(vertex1_y < nbGridPoints-1)
     {
-        if(!blocked &&(vertex2_x - vertex1_x) > (vertex2_y -vertex1_y))
-        {
-            vertex1_y ++;
-        }
-        /*if((vertex2_x - vertex1_x) <= (vertex2_y -vertex1_y))
-        {
-            blocked = true;
-        }
-
-        if(blocked && ((vertex2_x - vertex1_x) > (vertex2_y -vertex1_y+1)))
-        {
-            blocked = false;
-            vertex1_y ++;
-        }*/
+       vertex1_y ++;
     }
     on_pushButton_generer_clicked();
 }
@@ -454,22 +436,8 @@ void MainWindow::on_vertex1_y_moins_clicked()
 {
     if(vertex1_y > 0 )
     {
-        if(!blocked &&(vertex2_x - vertex1_x) > (vertex2_y -vertex1_y))
-        {
-            vertex1_y --;
-        }
-        /*if((vertex2_x - vertex1_x) <= (vertex2_y -vertex1_y))
-        {
-            blocked = true;
-        }
-
-        if(blocked && ((vertex2_x - vertex1_x) > (vertex2_y -vertex1_y-1)))
-        {
-            blocked = false;
-            vertex1_y --;
-        }*/
+       vertex1_y --;
     }
-
     on_pushButton_generer_clicked();
 }
 
@@ -480,42 +448,16 @@ void MainWindow::on_vertex2_x_plus_clicked()
 {
     if(vertex2_x < nbGridPoints-1)
     {
-        if(!blocked &&(vertex2_x - vertex1_x) > (vertex2_y -vertex1_y))
-        {
-            vertex2_x ++;
-        }
-        if((vertex2_x - vertex1_x) <= (vertex2_y -vertex1_y))
-        {
-            blocked = true;
-        }
-
-        if(blocked && ((vertex2_x+1 - vertex1_x) > (vertex2_y -vertex1_y)))
-        {
-            blocked = false;
-            vertex2_x ++;
-        }
+        vertex2_x ++;
     }
     on_pushButton_generer_clicked();
 }
 
 void MainWindow::on_vertex2_x_moins_clicked()
 {
-    if(vertex2_x > (vertex1_x+1))
+    if(vertex2_x > 0)
     {
-        if(!blocked &&(vertex2_x - vertex1_x) > (vertex2_y -vertex1_y))
-        {
-            vertex2_x --;
-        }
-        if((vertex2_x - vertex1_x) <= (vertex2_y -vertex1_y))
-        {
-            blocked = true;
-        }
-
-        if(blocked && ((vertex2_x-1 - vertex1_x) > (vertex2_y -vertex1_y)))
-        {
-            blocked = false;
-            vertex2_x --;
-        }
+       vertex2_x --;
     }
     on_pushButton_generer_clicked();
 }
@@ -525,44 +467,16 @@ void MainWindow::on_vertex2_y_plus_clicked()
 {
     if(vertex2_y < nbGridPoints-1)
     {
-        if(!blocked &&(vertex2_x - vertex1_x) > (vertex2_y -vertex1_y))
-        {
-            vertex2_y ++;
-        }
-
-        if((vertex2_x - vertex1_x) <= (vertex2_y -vertex1_y))
-        {
-            blocked = true;
-        }
-
-        if(blocked && ((vertex2_x - vertex1_x) > (vertex2_y+1 -vertex1_y)))
-        {
-            blocked = false;
-            vertex2_y ++;
-        }
+       vertex2_y ++;
     }
     on_pushButton_generer_clicked();
 }
 
 void MainWindow::on_vertex2_y_moins_clicked()
 {
-    if(vertex2_y > (vertex1_y+1))
+    if(vertex2_y > 0/*(vertex1_y+1)*/)
     {
-        if(!blocked &&(vertex2_x - vertex1_x) > (vertex2_y -vertex1_y))
-        {
-            vertex2_y --;
-        }
-
-        if((vertex2_x - vertex1_x) <= (vertex2_y -vertex1_y))
-        {
-            blocked = true;
-        }
-
-        if(blocked && ((vertex2_x - vertex1_x) > (vertex2_y-1 -vertex1_y)))
-        {
-            blocked = false;
-            vertex2_y--;
-        }
+         vertex2_y --;
     }
     on_pushButton_generer_clicked();
 }
@@ -571,6 +485,7 @@ void MainWindow::on_clearGrid_clicked()
 {
     //to do
     mesh.clear();
+
 }
 
 void MainWindow::on_demo_start_stop_clicked()
@@ -579,9 +494,7 @@ void MainWindow::on_demo_start_stop_clicked()
     if(demos == false)
     {
         demos = true;
-        //ui->demo_start_stop->setStyleSheet("background-color: blue;");
         ui->demo_start_stop->setStyleSheet("background-color: green;");
-
     }
     else
     {
@@ -614,6 +527,4 @@ void MainWindow::on_pushButton_clear_clicked()
     m1.multMat(m2).afficher();
 
     mesh.clear();
-
-
 }

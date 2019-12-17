@@ -46,10 +46,9 @@ public:
     void printListPoint(MyMesh *_mesh);
     void draw_last_vertex(MyMesh* _mesh);
     void draw_first_vertex(MyMesh *_mesh);
-    void drawSegment(MyMesh *_mesh,int x1, int y1, int x2, int y2);
+    void drawSegment(MyMesh *_mesh, int x1, int y1, int x2, int y2, int reverseX, int reverseY);
 
 private slots:
-    void on_pushButton_chargement_clicked();
 
     void on_pushButton_generer_clicked();
 
@@ -82,7 +81,7 @@ private slots:
 private:
 
     MyMesh mesh;
-    int nbGridPoints = 10;
+    int nbGridPoints = 11;
     int vertex1_x=1;
     int vertex1_y=1;
     int vertex2_x=9;

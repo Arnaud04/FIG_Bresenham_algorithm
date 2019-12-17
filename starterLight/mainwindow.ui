@@ -46,19 +46,6 @@
         <number>3</number>
        </property>
        <item>
-        <widget class="QPushButton" name="pushButton_chargement">
-         <property name="minimumSize">
-          <size>
-           <width>200</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Charger OBJ</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QPushButton" name="pushButton_generer">
          <property name="text">
           <string>Générer mesh</string>
